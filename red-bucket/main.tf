@@ -15,3 +15,38 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 data "aws_region" "current" {}
+
+# S3 bucket resource
+resource "aws_s3_bucket" "red-bucket" {
+  bucket = "${var.project_name}-s3"
+}
+
+# Server-side encryption configuration for the S3 bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
+  bucket = aws_s3_bucket.red-bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Enable versioning for the S3 bucket
+resource "aws_s3_bucket_versioning" "s3_versioning" {
+  bucket = aws_s3_bucket.red-bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Enable public access block for the S3 bucket
+resource "aws_s3_bucket_public_access_block" "s3_public_access_block" {
+  bucket = aws_s3_bucket.red-bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
