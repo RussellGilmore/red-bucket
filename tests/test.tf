@@ -13,6 +13,7 @@ module "red-bucket" {
 
   project_name = var.project_name
   region       = var.region
+  zone_id      = "Z1U6LA83P9X5OM"
 }
 
 output "red_bucket_s3_bucket" {
