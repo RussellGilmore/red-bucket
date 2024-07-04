@@ -3,8 +3,8 @@ module "static-website" {
 
   project_name        = "manual-test-54rg"
   region              = "us-east-1"
-  zone_id             = "Z1U6LA83P9X5OM"
-  domain              = "wedding.russellgilmore.net"
+  apex_domain         = "rag-space.com"
+  record_name         = "manual-test.rag-space.com"
   enable_public_block = false
 }
 
@@ -14,4 +14,8 @@ output "website_url" {
 
 output "s3_url" {
   value = module.static-website.s3_url
+}
+
+output "website_record" {
+  value = module.static-website.website_record
 }

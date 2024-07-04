@@ -16,22 +16,22 @@ variable "s3_website" {
   default     = {}
 }
 
-variable "zone_id" {
-  description = "Set the Route 53 zone ID."
-  type        = string
-  default     = ""
+variable "enable_public_block" {
+  description = "Enable public access block. (Must be disabled for static website hosting))"
+  type        = bool
+  default     = true
 }
 
-variable "domain" {
+variable "apex_domain" {
   description = "Set the domain name."
   type        = string
   default     = ""
 }
 
-variable "enable_public_block" {
-  description = "Enable public access block."
-  type        = bool
-  default     = true
+variable "record_name" {
+  description = "Set the sub-domain name."
+  type        = string
+  default     = ""
 }
 
 variable "website_path" {

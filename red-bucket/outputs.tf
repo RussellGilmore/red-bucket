@@ -13,3 +13,8 @@ output "s3_url" {
   description = "S3 hosting URL (HTTP)"
   value       = aws_s3_bucket_website_configuration.hosting.website_endpoint
 }
+
+output "website_record" {
+  description = "Route 53 record for the website"
+  value       = aws_route53_record.record.name
+}
