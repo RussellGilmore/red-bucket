@@ -8,15 +8,34 @@ variable "region" {
   type        = string
 }
 
-module "red-bucket" {
-  source = "../red-bucket"
-
-  project_name = var.project_name
-  region       = var.region
-  zone_id      = "Z1U6LA83P9X5OM"
+variable "apex_domain" {
+  description = "Set the apex domain."
+  type        = string
 }
 
-output "red_bucket_s3_bucket" {
-  value       = module.red-bucket.red_bucket_name
-  description = "The S3 bucket for storing Terraform state files"
+variable "record_name" {
+  description = "Set the record name."
+  type        = string
+}
+
+module "static-website" {
+  source = "../red-bucket"
+
+  project_name        = var.project_name
+  region              = var.region
+  apex_domain         = var.apex_domain
+  record_name         = var.record_name
+  enable_public_block = false
+}
+
+output "website_url" {
+  value = module.static-website.website_url
+}
+
+output "s3_url" {
+  value = module.static-website.s3_url
+}
+
+output "website_record" {
+  value = module.static-website.website_record
 }

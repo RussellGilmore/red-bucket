@@ -10,16 +10,11 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "s3_website" {
-  description = "Map containing static web-site hosting or redirect configuration."
-  type        = any
-  default     = {}
-}
-
-variable "enable_public_block" {
-  description = "Enable public access block. (Must be disabled for static website hosting))"
+# Enable Static Website Variable Section
+variable "enable_static_website" {
+  description = "Enable the creation of resources needed to support a secure and available static website."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "apex_domain" {

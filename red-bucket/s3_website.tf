@@ -1,4 +1,11 @@
+# This data source is used to get the hosted zone ID for the domain name
+data "aws_route53_zone" "zone" {
+  name = var.apex_domain
+}
+
+# Configure the S3 bucket for static website hosting
 resource "aws_s3_bucket_website_configuration" "hosting" {
+  count  = var.enable_static_website ? 1 : 0
   bucket = aws_s3_bucket.red-bucket.id
 
   index_document {
@@ -6,7 +13,9 @@ resource "aws_s3_bucket_website_configuration" "hosting" {
   }
 }
 
+# Configure the S3 bucket for public access for static website hosting
 resource "aws_s3_bucket_policy" "bucket_policy" {
+  count      = var.enable_static_website ? 1 : 0
   depends_on = [aws_s3_bucket_public_access_block.s3_public_access_block]
   bucket     = aws_s3_bucket.red-bucket.id
   policy = jsonencode(
@@ -30,14 +39,18 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   )
 }
 
+# Creates an origin access identity for the CloudFront distribution
 resource "aws_cloudfront_origin_access_identity" "default" {
-  comment = "Example origin access identity"
+  count   = var.enable_static_website ? 1 : 0
+  comment = "Red Bucket origin access identity"
 }
 
+# Configure the CloudFront distribution for the static website
 resource "aws_cloudfront_distribution" "distribution" {
+  count               = var.enable_static_website ? 1 : 0
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "Example distribution"
+  comment             = "Red Bucket Distribution"
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
 
@@ -48,18 +61,17 @@ resource "aws_cloudfront_distribution" "distribution" {
     origin_id   = var.project_name
 
     s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.default.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.default[0].cloudfront_access_identity_path
     }
   }
 
-
-
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.example_cert.arn
+    acm_certificate_arn      = aws_acm_certificate.public_cert.arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
+  # Restrict access to the CloudFront distribution to US only
   restrictions {
     geo_restriction {
       restriction_type = "whitelist"
@@ -86,6 +98,8 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 }
 
+
+# Upload files to S3 bucket if enable_static_website is true
 resource "aws_s3_object" "file" {
   for_each     = fileset(path.module, "${var.website_path}/**/*.{html,css,js}")
   bucket       = aws_s3_bucket.red-bucket.id
@@ -95,23 +109,30 @@ resource "aws_s3_object" "file" {
   source_hash  = filemd5(each.value)
 }
 
-# Route 53 Section
+# Upload the website files to the S3 bucket
+# resource "aws_s3_object" "file" {
+#   count        = var.enable_static_website ? length(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")) : 0
+#   bucket       = aws_s3_bucket.red-bucket.id
+#   key          = replace(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index], "/^${var.website_path}//", "")
+#   source       = fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index]
+#   content_type = lookup(local.content_types, regex("\\.[^.]+$", fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index]), null)
+#   source_hash  = filemd5(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index])
+# }
 
-# Fetch the existing hosted zone
-data "aws_route53_zone" "example" {
-  name = var.apex_domain
-}
-
+# Create a Route 53 record for the CloudFront distribution
 resource "aws_route53_record" "record" {
-  zone_id = data.aws_route53_zone.example.zone_id
+  count   = var.enable_static_website ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
   name    = var.record_name
   type    = "CNAME"
   ttl     = 300
 
-  records = [aws_cloudfront_distribution.distribution.domain_name]
+  records = var.enable_static_website ? [aws_cloudfront_distribution.distribution[0].domain_name] : []
 }
 
-resource "aws_acm_certificate" "example_cert" {
+# Create an ACM certificate for the domain name
+resource "aws_acm_certificate" "public_cert" {
+  # count             = var.enable_static_website ? 1 : 0
   domain_name       = var.record_name
   validation_method = "DNS"
 
@@ -120,25 +141,54 @@ resource "aws_acm_certificate" "example_cert" {
   }
 }
 
-# Create DNS validation records
-resource "aws_route53_record" "example_cert_validation" {
+# # Create a Route 53 record for the ACM certificate validation
+# resource "aws_route53_record" "public_cert_validation" {
+#   for_each = var.enable_static_website ? {
+#     for idx in keys(aws_acm_certificate.public_cert[0].domain_validation_options) : idx => aws_acm_certificate.public_cert[0].domain_validation_options[idx]
+#   } : {}
+
+#   zone_id = data.aws_route53_zone.zone.zone_id
+#   name    = each.value.resource_record_name
+#   type    = each.value.resource_record_type
+#   ttl     = 60
+#   records = [each.value.resource_record_value]
+# }
+
+resource "aws_route53_record" "public_cert_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.example_cert.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.public_cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       type   = dvo.resource_record_type
       record = dvo.resource_record_value
     }
   }
 
-  zone_id = data.aws_route53_zone.example.zone_id
+  zone_id = data.aws_route53_zone.zone.zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
   records = [each.value.record]
 }
 
-# Wait for DNS validation to complete
-resource "aws_acm_certificate_validation" "example_cert_validation" {
-  certificate_arn         = aws_acm_certificate.example_cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.example_cert_validation : record.fqdn]
+# resource "aws_route53_record" "example_cert_validation" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.example_cert.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       type   = dvo.resource_record_type
+#       record = dvo.resource_record_value
+#     }
+#   }
+
+#   zone_id = data.aws_route53_zone.example.zone_id
+#   name    = each.value.name
+#   type    = each.value.type
+#   ttl     = 60
+#   records = [each.value.record]
+# }
+
+# Validate the ACM certificate
+resource "aws_acm_certificate_validation" "public_cert_validation" {
+  # count                   = var.enable_static_website ? 1 : 0
+  certificate_arn         = aws_acm_certificate.public_cert.arn
+  validation_record_fqdns = var.enable_static_website ? [for record in aws_route53_record.public_cert_validation : record.fqdn] : []
 }
