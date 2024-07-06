@@ -61,5 +61,8 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_red_bucket_name"></a> [red\_bucket\_name](#output\_red\_bucket\_name) | The S3 bucket for storing whatever you want |
+| <a name="output_s3_url"></a> [s3\_url](#output\_s3\_url) | S3 hosting URL (HTTP) |
+| <a name="output_website_record"></a> [website\_record](#output\_website\_record) | Route 53 record for the website |
+| <a name="output_website_url"></a> [website\_url](#output\_website\_url) | Website URL (HTTPS) |
 <!-- END_TF_DOCS -->
 <!-- prettier-ignore-end -->

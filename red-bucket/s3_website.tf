@@ -141,24 +141,18 @@ resource "aws_acm_certificate" "public_cert" {
 
 # Create a Route 53 record for the ACM certificate validation
 resource "aws_route53_record" "public_cert_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.public_cert.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      type   = dvo.resource_record_type
-      record = dvo.resource_record_value
-    }
-  }
+  count = length(local.public_cert_validation_options)
 
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = each.value.name
-  type    = each.value.type
+  name    = local.public_cert_validation_options[count.index].name
+  type    = local.public_cert_validation_options[count.index].type
   ttl     = 60
-  records = [each.value.record]
+  records = [local.public_cert_validation_options[count.index].record]
 }
 
 # Validate the ACM certificate
 resource "aws_acm_certificate_validation" "public_cert_validation" {
-  # count                   = var.enable_static_website ? 1 : 0
+  count                   = var.enable_static_website ? 1 : 0
   certificate_arn         = aws_acm_certificate.public_cert.arn
   validation_record_fqdns = var.enable_static_website ? [for record in aws_route53_record.public_cert_validation : record.fqdn] : []
 }

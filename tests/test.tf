@@ -18,14 +18,19 @@ variable "record_name" {
   type        = string
 }
 
+variable "enable_static_website" {
+  description = "Enable the creation of resources needed to support a secure and available static website."
+  type        = bool
+}
+
 module "static-website" {
   source = "../red-bucket"
 
-  project_name        = var.project_name
-  region              = var.region
-  apex_domain         = var.apex_domain
-  record_name         = var.record_name
-  enable_public_block = false
+  project_name          = var.project_name
+  region                = var.region
+  apex_domain           = var.apex_domain
+  record_name           = var.record_name
+  enable_static_website = var.enable_static_website
 }
 
 output "website_url" {
