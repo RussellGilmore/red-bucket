@@ -23,6 +23,12 @@ variable "enable_static_website" {
   type        = bool
 }
 
+variable "website_path" {
+  description = "Set the path to the website content."
+  type        = string
+  default     = "test-site"
+}
+
 module "static-website" {
   source = "../red-bucket"
 
@@ -31,6 +37,11 @@ module "static-website" {
   apex_domain           = var.apex_domain
   record_name           = var.record_name
   enable_static_website = var.enable_static_website
+  website_path          = var.website_path
+}
+
+output "red_bucket_name" {
+  value = module.static-website.red_bucket_name
 }
 
 output "website_url" {

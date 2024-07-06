@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -9,20 +10,23 @@ import (
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	awsRegion   = os.Getenv("AWS_REGION")
-	projectName = fmt.Sprintf("red-bucket-%s", strings.ToLower(random.UniqueId()))
-	apexDomain  = os.Getenv("APEX_DOMAIN")
-	recordName  = fmt.Sprintf("%s.%s", strings.ToLower(random.UniqueId()), apexDomain)
-	opts        = &terraform.Options{
+	awsRegion           = os.Getenv("AWS_REGION")
+	projectName         = fmt.Sprintf("red-bucket-%s", strings.ToLower(random.UniqueId()))
+	apexDomain          = os.Getenv("APEX_DOMAIN")
+	recordName          = fmt.Sprintf("%s.%s", strings.ToLower(random.UniqueId()), apexDomain)
+	enableStaticWebsite = true
+	opts                = &terraform.Options{
 		TerraformDir: ".",
 		Vars: map[string]interface{}{
-			"region":       awsRegion,
-			"project_name": projectName,
-			"apex_domain":  apexDomain,
-			"record_name":  recordName,
+			"region":                awsRegion,
+			"project_name":          projectName,
+			"apex_domain":           apexDomain,
+			"record_name":           recordName,
+			"enable_static_website": enableStaticWebsite,
 		},
 	}
 )
@@ -40,23 +44,53 @@ func deployTerraform(t *testing.T) {
 	}
 }
 
-// func verifyRedBackendNames(t *testing.T) {
-// 	bucketName := terraform.Output(t, opts, "red_bucket_s3_bucket")
-// 	expectedBucketName := projectName + "-s3"
-// 	assert.Equal(t, expectedBucketName, bucketName)
-// }
+func verifyRedBucketNames(t *testing.T) {
+	bucketName := terraform.Output(t, opts, "red_bucket_name")
+	expectedBucketName := projectName + "-s3"
+	assert.Equal(t, expectedBucketName, bucketName)
+}
+
+func createTestSite() {
+	// Create the test-site directory
+	err := os.Mkdir("test-site", 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create the index.html file
+	file, err := os.Create("test-site/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Write "Hello World" to the index.html file
+	_, err = file.WriteString("Hello World")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func cleanupTestSite() {
+	err := os.RemoveAll("test-site")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 // Test the red bucket terraform module
-func TestRedBackend(t *testing.T) {
+func TestRedBucket(t *testing.T) {
 	defer test_structure.RunTestStage(t, "terraform_destroy", func() {
+		cleanupTestSite()
 		destroyTerraform(t)
 	})
 
 	test_structure.RunTestStage(t, "terraform_init_and_apply", func() {
+		createTestSite()
 		deployTerraform(t)
 	})
 
-	// test_structure.RunTestStage(t, "validate_red_backend_names", func() {
-	// 	verifyRedBackendNames(t)
-	// })
+	test_structure.RunTestStage(t, "validate_red_bucket_names", func() {
+		verifyRedBucketNames(t)
+	})
 }

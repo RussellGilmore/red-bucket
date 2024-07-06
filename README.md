@@ -1,5 +1,7 @@
 # Red Bucket
 
+## [![Red Bucket Module](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml/badge.svg?branch=main)](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml)
+
 A S3 Bucket module designed to be practical for casual use.
 
 > Contains useful Makefile for creating static asset directory and files.
