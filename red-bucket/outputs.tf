@@ -1,6 +1,6 @@
 # Purpose: Return the name of the s3 bucket
 output "red_bucket_name" {
-  value       = aws_s3_bucket.red-bucket.bucket
+  value       = aws_s3_bucket.red_bucket.bucket
   description = "The S3 bucket for storing whatever you want"
 }
 

@@ -6,7 +6,7 @@ data "aws_route53_zone" "zone" {
 # Configure the S3 bucket for static website hosting
 resource "aws_s3_bucket_website_configuration" "hosting" {
   count  = var.enable_static_website ? 1 : 0
-  bucket = aws_s3_bucket.red-bucket.id
+  bucket = aws_s3_bucket.red_bucket.id
 
   index_document {
     suffix = "index.html"
@@ -17,7 +17,7 @@ resource "aws_s3_bucket_website_configuration" "hosting" {
 resource "aws_s3_bucket_policy" "bucket_policy" {
   count      = var.enable_static_website ? 1 : 0
   depends_on = [aws_s3_bucket_public_access_block.s3_public_access_block]
-  bucket     = aws_s3_bucket.red-bucket.id
+  bucket     = aws_s3_bucket.red_bucket.id
   policy = jsonencode(
     {
       "Version" = "2012-10-17",
@@ -30,8 +30,8 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
             "s3:GetObject"
           ],
           "Resource" = [
-            aws_s3_bucket.red-bucket.arn,
-            "${aws_s3_bucket.red-bucket.arn}/*",
+            aws_s3_bucket.red_bucket.arn,
+            "${aws_s3_bucket.red_bucket.arn}/*",
           ]
         }
       ]
@@ -57,7 +57,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   aliases = [var.record_name]
 
   origin {
-    domain_name = aws_s3_bucket.red-bucket.bucket_regional_domain_name
+    domain_name = aws_s3_bucket.red_bucket.bucket_regional_domain_name
     origin_id   = var.project_name
 
     s3_origin_config {
@@ -98,26 +98,24 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 }
 
-
 # Upload files to S3 bucket if enable_static_website is true
-resource "aws_s3_object" "file" {
-  for_each     = fileset(path.module, "${var.website_path}/**/*.{html,css,js}")
-  bucket       = aws_s3_bucket.red-bucket.id
-  key          = replace(each.value, "/^${var.website_path}//", "")
-  source       = each.value
-  content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
-  source_hash  = filemd5(each.value)
-}
+resource "aws_s3_object" "website_files" {
+  count = var.enable_static_website ? length(local.website_files_list) : 0
 
-# Upload the website files to the S3 bucket
-# resource "aws_s3_object" "file" {
-#   count        = var.enable_static_website ? length(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")) : 0
-#   bucket       = aws_s3_bucket.red-bucket.id
-#   key          = replace(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index], "/^${var.website_path}//", "")
-#   source       = fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index]
-#   content_type = lookup(local.content_types, regex("\\.[^.]+$", fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index]), null)
-#   source_hash  = filemd5(fileset(path.module, "${var.website_path}/**/*.{html,css,js}")[count.index])
-# }
+  bucket = aws_s3_bucket.red_bucket.id
+  key    = local.website_files_list[count.index]
+  source = "${var.website_path}/${local.website_files_list[count.index]}"
+  etag   = filemd5("${var.website_path}/${local.website_files_list[count.index]}")
+
+  content_type = lookup({
+    html = "text/html",
+    css  = "text/css",
+    js   = "application/javascript",
+    png  = "image/png",
+    jpg  = "image/jpeg",
+    gif  = "image/gif"
+  }, regex(".*\\.(.*)$", local.website_files_list[count.index])[0], "application/octet-stream")
+}
 
 # Create a Route 53 record for the CloudFront distribution
 resource "aws_route53_record" "record" {
@@ -141,19 +139,7 @@ resource "aws_acm_certificate" "public_cert" {
   }
 }
 
-# # Create a Route 53 record for the ACM certificate validation
-# resource "aws_route53_record" "public_cert_validation" {
-#   for_each = var.enable_static_website ? {
-#     for idx in keys(aws_acm_certificate.public_cert[0].domain_validation_options) : idx => aws_acm_certificate.public_cert[0].domain_validation_options[idx]
-#   } : {}
-
-#   zone_id = data.aws_route53_zone.zone.zone_id
-#   name    = each.value.resource_record_name
-#   type    = each.value.resource_record_type
-#   ttl     = 60
-#   records = [each.value.resource_record_value]
-# }
-
+# Create a Route 53 record for the ACM certificate validation
 resource "aws_route53_record" "public_cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.public_cert.domain_validation_options : dvo.domain_name => {
@@ -169,22 +155,6 @@ resource "aws_route53_record" "public_cert_validation" {
   ttl     = 60
   records = [each.value.record]
 }
-
-# resource "aws_route53_record" "example_cert_validation" {
-#   for_each = {
-#     for dvo in aws_acm_certificate.example_cert.domain_validation_options : dvo.domain_name => {
-#       name   = dvo.resource_record_name
-#       type   = dvo.resource_record_type
-#       record = dvo.resource_record_value
-#     }
-#   }
-
-#   zone_id = data.aws_route53_zone.example.zone_id
-#   name    = each.value.name
-#   type    = each.value.type
-#   ttl     = 60
-#   records = [each.value.record]
-# }
 
 # Validate the ACM certificate
 resource "aws_acm_certificate_validation" "public_cert_validation" {

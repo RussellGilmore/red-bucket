@@ -33,13 +33,13 @@ No modules.
 | [aws_cloudfront_origin_access_identity.default](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/cloudfront_origin_access_identity) | resource |
 | [aws_route53_record.public_cert_validation](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/route53_record) | resource |
 | [aws_route53_record.record](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/route53_record) | resource |
-| [aws_s3_bucket.red-bucket](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket.red_bucket](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_policy.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_public_access_block.s3_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.s3_encryption](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_s3_bucket_versioning.s3_versioning](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket_versioning) | resource |
 | [aws_s3_bucket_website_configuration.hosting](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_bucket_website_configuration) | resource |
-| [aws_s3_object.file](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_object) | resource |
+| [aws_s3_object.website_files](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/resources/s3_object) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/data-sources/caller_identity) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.57.0/docs/data-sources/region) | data source |

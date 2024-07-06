@@ -17,13 +17,13 @@ data "aws_partition" "current" {}
 data "aws_region" "current" {}
 
 # S3 bucket resource
-resource "aws_s3_bucket" "red-bucket" {
+resource "aws_s3_bucket" "red_bucket" {
   bucket = "${var.project_name}-s3"
 }
 
 # Server-side encryption configuration for the S3 bucket
 resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
-  bucket = aws_s3_bucket.red-bucket.id
+  bucket = aws_s3_bucket.red_bucket.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -34,7 +34,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
 
 # Enable versioning for the S3 bucket
 resource "aws_s3_bucket_versioning" "s3_versioning" {
-  bucket = aws_s3_bucket.red-bucket.id
+  bucket = aws_s3_bucket.red_bucket.id
 
   versioning_configuration {
     status = "Enabled"
@@ -43,7 +43,7 @@ resource "aws_s3_bucket_versioning" "s3_versioning" {
 
 # Enable public access block for the S3 bucket
 resource "aws_s3_bucket_public_access_block" "s3_public_access_block" {
-  bucket = aws_s3_bucket.red-bucket.id
+  bucket = aws_s3_bucket.red_bucket.id
 
   block_public_acls       = var.enable_static_website ? false : true
   block_public_policy     = var.enable_static_website ? false : true
