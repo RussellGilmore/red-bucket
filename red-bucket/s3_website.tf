@@ -1,6 +1,7 @@
 # This data source is used to get the hosted zone ID for the domain name
 data "aws_route53_zone" "zone" {
-  name = var.apex_domain
+  count = var.enable_static_website ? 1 : 0
+  name  = var.apex_domain
 }
 
 # Configure the S3 bucket for static website hosting
