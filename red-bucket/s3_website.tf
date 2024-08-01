@@ -131,7 +131,7 @@ resource "aws_route53_record" "record" {
 
 # Create an ACM certificate for the domain name
 resource "aws_acm_certificate" "public_cert" {
-  # count             = var.enable_static_website ? 1 : 0
+  count             = var.enable_static_website ? 1 : 0
   domain_name       = var.record_name
   validation_method = "DNS"
 
