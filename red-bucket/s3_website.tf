@@ -144,7 +144,7 @@ resource "aws_acm_certificate" "public_cert" {
 resource "aws_route53_record" "public_cert_validation" {
   count = length(local.public_cert_validation_options)
 
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone[count.index].zone_id
   name    = local.public_cert_validation_options[count.index].name
   type    = local.public_cert_validation_options[count.index].type
   ttl     = 60
