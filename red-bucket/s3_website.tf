@@ -121,7 +121,7 @@ resource "aws_s3_object" "website_files" {
 # Create a Route 53 record for the CloudFront distribution
 resource "aws_route53_record" "record" {
   count   = var.enable_static_website ? 1 : 0
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone[count.index].zone_id
   name    = var.record_name
   type    = "CNAME"
   ttl     = 300
