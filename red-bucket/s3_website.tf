@@ -142,7 +142,7 @@ resource "aws_acm_certificate" "public_cert" {
 
 # Create a Route 53 record for the ACM certificate validation
 resource "aws_route53_record" "public_cert_validation" {
-  count = length(local.public_cert_validation_options)
+  count = var.enable_static_website ? length(local.public_cert_validation_options) : 0
 
   zone_id = data.aws_route53_zone.zone[count.index].zone_id
   name    = local.public_cert_validation_options[count.index].name
