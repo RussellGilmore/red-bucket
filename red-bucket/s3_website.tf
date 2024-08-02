@@ -101,7 +101,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
 # Upload files to S3 bucket if enable_static_website is true
 resource "aws_s3_object" "website_files" {
-  count = var.enable_static_website ? length(local.website_files_list) : 0
+  count = var.enable_static_website ? length(local.public_cert_validation_options) : 0
 
   bucket = aws_s3_bucket.red_bucket.id
   key    = local.website_files_list[count.index]
