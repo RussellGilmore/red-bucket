@@ -140,17 +140,6 @@ resource "aws_acm_certificate" "public_cert" {
   }
 }
 
-# # Create a Route 53 record for the ACM certificate validation
-# resource "aws_route53_record" "public_cert_validation" {
-#   count = var.enable_static_website ? length(tolist(aws_acm_certificate.public_cert.domain_validation_options)) : 0
-
-#   zone_id = data.aws_route53_zone.zone[count.index].zone_id
-#   name    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_name : ""
-#   type    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_type : ""
-#   ttl     = 60
-#   records = var.enable_static_website ? [tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_value] : []
-# }
-
 # Create a Route 53 record for the ACM certificate validation
 resource "aws_route53_record" "public_cert_validation" {
   count = var.enable_static_website ? length(tolist(aws_acm_certificate.public_cert[0].domain_validation_options)) : 0
@@ -161,8 +150,6 @@ resource "aws_route53_record" "public_cert_validation" {
   ttl     = 60
   records = var.enable_static_website ? [tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_value] : []
 }
-
-
 
 # Validate the ACM certificate
 resource "aws_acm_certificate_validation" "public_cert_validation" {
