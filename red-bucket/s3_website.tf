@@ -1,6 +1,7 @@
 # This data source is used to get the hosted zone ID for the domain name
 data "aws_route53_zone" "zone" {
-  name = var.apex_domain
+  count = var.enable_static_website ? 1 : 0
+  name  = var.apex_domain
 }
 
 # Configure the S3 bucket for static website hosting
@@ -66,7 +67,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.public_cert.arn
+    acm_certificate_arn      = aws_acm_certificate.public_cert[count.index].arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
@@ -120,7 +121,7 @@ resource "aws_s3_object" "website_files" {
 # Create a Route 53 record for the CloudFront distribution
 resource "aws_route53_record" "record" {
   count   = var.enable_static_website ? 1 : 0
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone[count.index].zone_id
   name    = var.record_name
   type    = "CNAME"
   ttl     = 300
@@ -130,7 +131,7 @@ resource "aws_route53_record" "record" {
 
 # Create an ACM certificate for the domain name
 resource "aws_acm_certificate" "public_cert" {
-  # count             = var.enable_static_website ? 1 : 0
+  count             = var.enable_static_website ? 1 : 0
   domain_name       = var.record_name
   validation_method = "DNS"
 
@@ -139,20 +140,33 @@ resource "aws_acm_certificate" "public_cert" {
   }
 }
 
+# # Create a Route 53 record for the ACM certificate validation
+# resource "aws_route53_record" "public_cert_validation" {
+#   count = var.enable_static_website ? length(tolist(aws_acm_certificate.public_cert.domain_validation_options)) : 0
+
+#   zone_id = data.aws_route53_zone.zone[count.index].zone_id
+#   name    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_name : ""
+#   type    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_type : ""
+#   ttl     = 60
+#   records = var.enable_static_website ? [tolist(aws_acm_certificate.public_cert.domain_validation_options)[count.index].resource_record_value] : []
+# }
+
 # Create a Route 53 record for the ACM certificate validation
 resource "aws_route53_record" "public_cert_validation" {
-  count = length(local.public_cert_validation_options)
+  count = var.enable_static_website ? length(tolist(aws_acm_certificate.public_cert[0].domain_validation_options)) : 0
 
-  zone_id = data.aws_route53_zone.zone.zone_id
-  name    = local.public_cert_validation_options[count.index].name
-  type    = local.public_cert_validation_options[count.index].type
+  zone_id = data.aws_route53_zone.zone[count.index].zone_id
+  name    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_name : ""
+  type    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_type : ""
   ttl     = 60
-  records = [local.public_cert_validation_options[count.index].record]
+  records = var.enable_static_website ? [tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_value] : []
 }
+
+
 
 # Validate the ACM certificate
 resource "aws_acm_certificate_validation" "public_cert_validation" {
   count                   = var.enable_static_website ? 1 : 0
-  certificate_arn         = aws_acm_certificate.public_cert.arn
+  certificate_arn         = aws_acm_certificate.public_cert[count.index].arn
   validation_record_fqdns = var.enable_static_website ? [for record in aws_route53_record.public_cert_validation : record.fqdn] : []
 }
