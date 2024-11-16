@@ -1,5 +1,5 @@
-# Red Backend Module Testing Workflow
-name: Testing Red Backend Module
+# Red Bucket Module Testing Workflow
+name: Testing Red Bucket Module
 on:
   push:
     branches: ["main"]
@@ -29,5 +29,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          APEX_DOMAIN: ${{ secrets.APEX_DOMAIN }}
         working-directory: tests/
-        run: go test -timeout 10m red_backend_test.go -v
+        run: go test -timeout 30m red_bucket_test.go -v
