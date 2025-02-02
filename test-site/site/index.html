@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raining Testes</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #4682B4);
+        }
+        .test {
+            position: fixed;
+            user-select: none;
+            font-size: 24px;
+            z-index: 1;
+            animation: fall linear;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function createTest() {
+            const test = document.createElement('div');
+            test.innerHTML = 'test';
+            test.className = 'test';
+
+            // Random horizontal position
+            const startX = Math.random() * window.innerWidth;
+            test.style.left = startX + 'px';
+
+            // Random fall duration between 4-8 seconds
+            const duration = 4 + Math.random() * 4;
+            test.style.animationDuration = duration + 's';
+
+            document.body.appendChild(test);
+
+            // Remove test after animation
+            setTimeout(() => {
+                test.remove();
+            }, duration * 1000);
+        }
+
+        // Create new test every 500ms
+        setInterval(createTest, 500);
+
+        // Create initial batch of testes
+        for(let i = 0; i < 5; i++) {
+            createTest();
+        }
+    </script>
+</body>
+</html>
