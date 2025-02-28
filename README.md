@@ -12,14 +12,14 @@ A S3 Bucket module designed to be practical for casual use.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.9.8 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.75.1 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.10.5 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.88.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.75.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.88.0 |
 
 ## Modules
 
@@ -29,23 +29,23 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_acm_certificate.public_cert](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/acm_certificate) | resource |
-| [aws_acm_certificate_validation.public_cert_validation](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/acm_certificate_validation) | resource |
-| [aws_cloudfront_distribution.distribution](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/cloudfront_distribution) | resource |
-| [aws_cloudfront_origin_access_identity.default](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/cloudfront_origin_access_identity) | resource |
-| [aws_route53_record.public_cert_validation](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/route53_record) | resource |
-| [aws_route53_record.record](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/route53_record) | resource |
-| [aws_s3_bucket.red_bucket](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_policy.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.s3_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.s3_encryption](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.s3_versioning](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket_versioning) | resource |
-| [aws_s3_bucket_website_configuration.hosting](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_bucket_website_configuration) | resource |
-| [aws_s3_object.website_files](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/resources/s3_object) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/data-sources/caller_identity) | data source |
-| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/data-sources/partition) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/data-sources/region) | data source |
-| [aws_route53_zone.zone](https://registry.terraform.io/providers/hashicorp/aws/5.75.1/docs/data-sources/route53_zone) | data source |
+| [aws_acm_certificate.public_cert](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/acm_certificate) | resource |
+| [aws_acm_certificate_validation.public_cert_validation](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/acm_certificate_validation) | resource |
+| [aws_cloudfront_distribution.distribution](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/cloudfront_distribution) | resource |
+| [aws_cloudfront_origin_access_identity.default](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/cloudfront_origin_access_identity) | resource |
+| [aws_route53_record.public_cert_validation](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/route53_record) | resource |
+| [aws_route53_record.record](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/route53_record) | resource |
+| [aws_s3_bucket.red_bucket](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_policy.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.s3_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.s3_encryption](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_versioning.s3_versioning](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket_versioning) | resource |
+| [aws_s3_bucket_website_configuration.hosting](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_bucket_website_configuration) | resource |
+| [aws_s3_object.website_files](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/s3_object) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/data-sources/caller_identity) | data source |
+| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/data-sources/partition) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/data-sources/region) | data source |
+| [aws_route53_zone.zone](https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/data-sources/route53_zone) | data source |
 
 ## Inputs
 
