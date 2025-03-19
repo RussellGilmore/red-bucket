@@ -10,6 +10,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "force_destroy" {
+  description = "Set the force destroy option for the S3 bucket."
+  type        = bool
+  default     = true
+}
+
 # Enable Static Website Variable Section
 variable "enable_static_website" {
   description = "Enable the creation of resources needed to support a secure and available static website."

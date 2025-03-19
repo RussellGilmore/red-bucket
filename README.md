@@ -53,6 +53,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_apex_domain"></a> [apex\_domain](#input\_apex\_domain) | Set the domain name. | `string` | `""` | no |
 | <a name="input_enable_static_website"></a> [enable\_static\_website](#input\_enable\_static\_website) | Enable the creation of resources needed to support a secure and available static website. | `bool` | `false` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Set the force destroy option for the S3 bucket. | `bool` | `true` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Set the project name. | `string` | `"red-test"` | no |
 | <a name="input_record_name"></a> [record\_name](#input\_record\_name) | Set the sub-domain name. | `string` | `""` | no |
 | <a name="input_region"></a> [region](#input\_region) | Set the appropriate AWS region. | `string` | `"us-east-1"` | no |
