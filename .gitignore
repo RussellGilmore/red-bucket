@@ -72,7 +72,6 @@ go.work
 ############### OS ###############
 .DS_Store
 
-
 ############# Module #############
 # Ignore all files in the site directory
 site/*
