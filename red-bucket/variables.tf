@@ -16,7 +16,6 @@ variable "force_destroy" {
   default     = true
 }
 
-# Enable Static Website Variable Section
 variable "enable_static_website" {
   description = "Enable the creation of resources needed to support a secure and available static website."
   type        = bool
