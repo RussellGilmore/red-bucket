@@ -47,9 +47,9 @@ func deployTerraform(t *testing.T) {
 }
 
 func verifyRedBucketNames(t *testing.T) {
-	bucketName := terraform.Output(t, opts, "red_bucket_name")
-	expectedBucketName := projectName + "-s3"
-	assert.Equal(t, expectedBucketName, bucketName)
+	actualBucketName := terraform.Output(t, opts, "red_bucket_name")
+	expectedBucketName := projectName + bucketName + "-s3"
+	assert.Equal(t, expectedBucketName, actualBucketName)
 }
 
 func createTestSite() {
