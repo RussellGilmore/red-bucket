@@ -18,7 +18,7 @@ data "aws_region" "current" {}
 
 # S3 bucket resource
 resource "aws_s3_bucket" "red_bucket" {
-  bucket        = "${var.project_name}-s3"
+  bucket        = "${var.project_name}-${var.bucket_name}-s3"
   force_destroy = var.force_destroy
 }
 

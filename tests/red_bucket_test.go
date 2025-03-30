@@ -15,7 +15,8 @@ import (
 
 var (
 	awsRegion           = os.Getenv("AWS_REGION")
-	projectName         = fmt.Sprintf("red-bucket-%s", strings.ToLower(random.UniqueId()))
+	projectName         = "red-bucket-test"
+	bucketName          = strings.ToLower(random.UniqueId())
 	apexDomain          = os.Getenv("APEX_DOMAIN")
 	recordName          = fmt.Sprintf("%s.%s", strings.ToLower(random.UniqueId()), apexDomain)
 	enableStaticWebsite = true
@@ -24,6 +25,7 @@ var (
 		Vars: map[string]interface{}{
 			"region":                awsRegion,
 			"project_name":          projectName,
+			"bucket_name":           bucketName,
 			"apex_domain":           apexDomain,
 			"record_name":           recordName,
 			"enable_static_website": enableStaticWebsite,

@@ -1,14 +1,23 @@
+####################################################################################################
+# Required Variables
+
 variable "project_name" {
   description = "Set the project name."
   type        = string
-  default     = "red-test"
 }
 
 variable "region" {
   description = "Set the appropriate AWS region."
   type        = string
-  default     = "us-east-1"
 }
+
+variable "bucket_name" {
+  description = "Set the name of the S3 bucket."
+  type        = string
+}
+
+####################################################################################################
+# Optional Red Bucket Variables
 
 variable "force_destroy" {
   description = "Set the force destroy option for the S3 bucket."
