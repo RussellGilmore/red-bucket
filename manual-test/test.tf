@@ -10,6 +10,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "bucket_name" {
+  description = "Set the name of the S3 bucket."
+  type        = string
+  default     = "test-manual-red-775-bucket"
+}
+
 variable "apex_domain" {
   description = "Set the apex domain."
   type        = string
@@ -38,6 +44,7 @@ module "static-website" {
   source = "../red-bucket"
 
   project_name          = var.project_name
+  bucket_name           = var.bucket_name
   region                = var.region
   apex_domain           = var.apex_domain
   record_name           = var.record_name
