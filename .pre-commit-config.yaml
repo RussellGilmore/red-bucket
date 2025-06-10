@@ -11,6 +11,9 @@ repos:
     hooks:
       - id: terraform_fmt
         name: Terraform Formatter
+      - id: terraform_trivy
+        name: Terraform Trivy Security Scan
+        files: ^red-bucket/.*\.tf$
   - repo: https://github.com/terraform-docs/terraform-docs
     rev: v0.20.0
     hooks:

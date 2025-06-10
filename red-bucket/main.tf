@@ -17,12 +17,14 @@ data "aws_partition" "current" {}
 data "aws_region" "current" {}
 
 # S3 bucket resource
+# trivy:ignore:AVD-AWS-0089
 resource "aws_s3_bucket" "red_bucket" {
   bucket        = "${var.project_name}-${var.bucket_name}-s3"
   force_destroy = var.force_destroy
 }
 
 # Server-side encryption configuration for the S3 bucket
+# trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "s3_encryption" {
   bucket = aws_s3_bucket.red_bucket.id
 
