@@ -1,5 +1,10 @@
 # Red Bucket
 
+**Requirements:**
+
+1. Terraform 1.12.1
+2. Trivy 0.63.0
+
 ## [![Red Bucket Module](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml/badge.svg?branch=main)](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml)
 
 A S3 Bucket module designed to be practical for casual use.
