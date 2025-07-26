@@ -118,7 +118,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     ] : []
     content {
       error_code         = custom_error_response.value.error_code
-      response_code      = 302
+      response_code      = 200
       response_page_path = "/login.html"
     }
   }
