@@ -63,7 +63,9 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_apex_domain"></a> [apex\_domain](#input\_apex\_domain) | Set the domain name. | `string` | `""` | no |
+| <a name="input_auth_lambda_arn"></a> [auth\_lambda\_arn](#input\_auth\_lambda\_arn) | ARN of the Lambda@Edge function for authentication | `string` | `""` | no |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Set the name of the S3 bucket. | `string` | n/a | yes |
+| <a name="input_enable_authentication"></a> [enable\_authentication](#input\_enable\_authentication) | Enable GitHub OAuth authentication | `bool` | `false` | no |
 | <a name="input_enable_static_website"></a> [enable\_static\_website](#input\_enable\_static\_website) | Enable the creation of resources needed to support a secure and available static website. | `bool` | `false` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Set the force destroy option for the S3 bucket. | `bool` | `true` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Set the project name. | `string` | n/a | yes |

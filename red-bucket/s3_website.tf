@@ -85,17 +85,42 @@ resource "aws_cloudfront_distribution" "distribution" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = var.project_name
 
+    # Conditional forwarded_values based on authentication
     forwarded_values {
-      query_string = false
+      query_string = var.enable_authentication ? true : false
+      headers      = var.enable_authentication ? ["Authorization", "CloudFront-Viewer-Country"] : []
       cookies {
-        forward = "none"
+        forward = var.enable_authentication ? "all" : "none"
       }
     }
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    default_ttl            = var.enable_authentication ? 0 : 3600     # No caching for auth, normal caching otherwise
+    max_ttl                = var.enable_authentication ? 3600 : 86400 # Reduced TTL for auth
+
+    # Conditional Lambda@Edge function association
+    dynamic "lambda_function_association" {
+      for_each = var.enable_authentication && var.auth_lambda_arn != "" ? [1] : []
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = var.auth_lambda_arn
+        include_body = false
+      }
+    }
+  }
+
+  # Conditional custom error pages for authentication
+  dynamic "custom_error_response" {
+    for_each = var.enable_authentication ? [
+      { error_code = 403 },
+      { error_code = 404 }
+    ] : []
+    content {
+      error_code         = custom_error_response.value.error_code
+      response_code      = 302
+      response_page_path = "/login.html"
+    }
   }
 }
 

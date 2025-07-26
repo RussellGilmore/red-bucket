@@ -48,3 +48,15 @@ variable "website_path" {
   type        = string
   default     = "../site"
 }
+
+variable "auth_lambda_arn" {
+  description = "ARN of the Lambda@Edge function for authentication"
+  type        = string
+  default     = ""
+}
+
+variable "enable_authentication" {
+  description = "Enable GitHub OAuth authentication"
+  type        = bool
+  default     = false
+}
