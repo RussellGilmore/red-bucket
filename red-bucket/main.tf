@@ -48,8 +48,8 @@ resource "aws_s3_bucket_versioning" "s3_versioning" {
 resource "aws_s3_bucket_public_access_block" "s3_public_access_block" {
   bucket = aws_s3_bucket.red_bucket.id
 
-  block_public_acls       = var.enable_static_website ? false : true
-  block_public_policy     = var.enable_static_website ? false : true
-  ignore_public_acls      = var.enable_static_website ? false : true
-  restrict_public_buckets = var.enable_static_website ? false : true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

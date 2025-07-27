@@ -30,7 +30,6 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
         },
         "Action" = "s3:GetObject",
         "Resource" = [
-          aws_s3_bucket.red_bucket.arn,
           "${aws_s3_bucket.red_bucket.arn}/*"
         ]
       }
@@ -111,13 +110,22 @@ resource "aws_cloudfront_distribution" "distribution" {
   # Conditional custom error pages for authentication
   dynamic "custom_error_response" {
     for_each = var.enable_authentication ? [
-      { error_code = 403 },
-      { error_code = 404 }
+      {
+        error_code         = 403
+        response_code      = 403
+        response_page_path = "/403.html"
+      },
+      {
+        error_code         = 404
+        response_code      = 404
+        response_page_path = "/404.html"
+      }
     ] : []
+
     content {
       error_code         = custom_error_response.value.error_code
-      response_code      = 200
-      response_page_path = "/login.html"
+      response_code      = custom_error_response.value.response_code
+      response_page_path = custom_error_response.value.response_page_path
     }
   }
 }
