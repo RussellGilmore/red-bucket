@@ -2,7 +2,7 @@
 
 **Requirements:**
 
-1. Terraform 1.14.3
+1. Terraform 1.14.6
 2. Trivy >= 0.68.2
 
 Trivy can be installed via Homebrew on macOS with the command:
