@@ -2,61 +2,62 @@
 # Required Variables
 
 variable "project_name" {
-  description = "Set the project name."
-  type        = string
-}
-
-variable "region" {
-  description = "Set the appropriate AWS region."
+  description = "Project name used for resource naming and the Project tag."
   type        = string
 }
 
 variable "bucket_name" {
-  description = "Set the name of the S3 bucket."
+  description = "Name of the S3 bucket (combined with project_name)."
   type        = string
 }
 
 ####################################################################################################
 # Optional Red Bucket Variables
 
+variable "additional_tags" {
+  description = "Additional tags to apply to all resources created by this module."
+  type        = map(string)
+  default     = {}
+}
+
 variable "force_destroy" {
-  description = "Set the force destroy option for the S3 bucket."
+  description = "Allow Terraform to destroy the bucket even when it contains objects. Defaults to false to protect against accidental data loss; set true for ephemeral or test buckets."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_static_website" {
-  description = "Enable the creation of resources needed to support a secure and available static website."
+  description = "Create the CloudFront + ACM + Route53 resources needed to serve the bucket as a secure static website."
   type        = bool
   default     = false
 }
 
 variable "apex_domain" {
-  description = "Set the domain name."
+  description = "Apex domain whose Route53 hosted zone holds the website records. Required when enable_static_website is true."
   type        = string
   default     = ""
 }
 
 variable "record_name" {
-  description = "Set the sub-domain name."
+  description = "Fully-qualified record name for the website (e.g. app.example.com). Required when enable_static_website is true."
   type        = string
   default     = ""
 }
 
 variable "website_path" {
-  description = "Set the path to the website content."
+  description = "Path to the static website content to upload."
   type        = string
   default     = "../site"
 }
 
 variable "auth_lambda_arn" {
-  description = "ARN of the Lambda@Edge function for authentication"
+  description = "ARN of a Lambda@Edge function for viewer-request authentication. Must be set when enable_authentication is true."
   type        = string
   default     = ""
 }
 
 variable "enable_authentication" {
-  description = "Enable GitHub OAuth authentication"
+  description = "Enable Lambda@Edge-based authentication on the CloudFront distribution."
   type        = bool
   default     = false
 }
