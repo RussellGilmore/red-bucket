@@ -14,33 +14,43 @@ resource "aws_s3_bucket_website_configuration" "hosting" {
   }
 }
 
-# Configure the S3 bucket for public access for static website hosting
+# Origin Access Control — the modern replacement for Origin Access Identity.
+# OAC supports SigV4, all regions, and SSE-KMS origins; OAI is legacy.
+resource "aws_cloudfront_origin_access_control" "default" {
+  count                             = var.enable_static_website ? 1 : 0
+  name                              = "${var.project_name}-${var.bucket_name}-oac"
+  description                       = "Red Bucket origin access control"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+# Bucket policy granting the CloudFront distribution read access via OAC.
+# OAC authorizes by service principal + source distribution ARN rather than
+# the OAI's IAM-user-style principal.
 resource "aws_s3_bucket_policy" "bucket_policy" {
   count      = var.enable_static_website ? 1 : 0
   depends_on = [aws_s3_bucket_public_access_block.s3_public_access_block]
   bucket     = aws_s3_bucket.red_bucket.id
   policy = jsonencode({
-    "Version" = "2012-10-17",
-    "Statement" = [
+    Version = "2012-10-17"
+    Statement = [
       {
-        "Sid"    = "AllowCloudFrontServicePrincipal",
-        "Effect" = "Allow",
-        "Principal" = {
-          "AWS" = aws_cloudfront_origin_access_identity.default[0].iam_arn
-        },
-        "Action" = "s3:GetObject",
-        "Resource" = [
-          "${aws_s3_bucket.red_bucket.arn}/*"
-        ]
+        Sid    = "AllowCloudFrontServicePrincipal"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.red_bucket.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.distribution[0].arn
+          }
+        }
       }
     ]
   })
-}
-
-# Creates an origin access identity for the CloudFront distribution
-resource "aws_cloudfront_origin_access_identity" "default" {
-  count   = var.enable_static_website ? 1 : 0
-  comment = "Red Bucket origin access identity"
 }
 
 # Configure the CloudFront distribution for the static website
@@ -54,17 +64,16 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   aliases = [var.record_name]
 
-  origin {
-    domain_name = aws_s3_bucket.red_bucket.bucket_regional_domain_name
-    origin_id   = var.project_name
+  tags = local.tags
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.default[0].cloudfront_access_identity_path
-    }
+  origin {
+    domain_name              = aws_s3_bucket.red_bucket.bucket_regional_domain_name
+    origin_id                = var.project_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.default[0].id
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.public_cert[count.index].arn
+    acm_certificate_arn      = aws_acm_certificate.public_cert[0].arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
@@ -82,7 +91,6 @@ resource "aws_cloudfront_distribution" "distribution" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = var.project_name
 
-    # Conditional forwarded_values based on authentication
     forwarded_values {
       query_string = var.enable_authentication ? true : false
       headers      = var.enable_authentication ? ["Authorization", "CloudFront-Viewer-Country"] : []
@@ -93,10 +101,9 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = var.enable_authentication ? 0 : 3600     # No caching for auth, normal caching otherwise
-    max_ttl                = var.enable_authentication ? 3600 : 86400 # Reduced TTL for auth
+    default_ttl            = var.enable_authentication ? 0 : 3600
+    max_ttl                = var.enable_authentication ? 3600 : 86400
 
-    # Conditional Lambda@Edge function association
     dynamic "lambda_function_association" {
       for_each = var.enable_authentication && var.auth_lambda_arn != "" ? [1] : []
       content {
@@ -107,7 +114,6 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
-  # Conditional custom error pages for authentication
   dynamic "custom_error_response" {
     for_each = var.enable_authentication ? [
       {
@@ -152,12 +158,12 @@ resource "aws_s3_object" "website_files" {
 # Create a Route 53 record for the CloudFront distribution
 resource "aws_route53_record" "record" {
   count   = var.enable_static_website ? 1 : 0
-  zone_id = data.aws_route53_zone.zone[count.index].zone_id
+  zone_id = data.aws_route53_zone.zone[0].zone_id
   name    = var.record_name
   type    = "CNAME"
   ttl     = 300
 
-  records = var.enable_static_website ? [aws_cloudfront_distribution.distribution[0].domain_name] : []
+  records = [aws_cloudfront_distribution.distribution[0].domain_name]
 }
 
 # Create an ACM certificate for the domain name
@@ -166,24 +172,36 @@ resource "aws_acm_certificate" "public_cert" {
   domain_name       = var.record_name
   validation_method = "DNS"
 
+  tags = local.tags
+
   lifecycle {
     create_before_destroy = true
   }
 }
 
-# Create a Route 53 record for the ACM certificate validation
+# DNS validation records for the ACM certificate.
+# Iterates the cert's domain_validation_options as a keyed map so the record
+# count tracks the actual number of validation entries instead of assuming one.
 resource "aws_route53_record" "public_cert_validation" {
-  count   = var.enable_static_website ? length(tolist(aws_acm_certificate.public_cert[0].domain_validation_options)) : 0
-  zone_id = data.aws_route53_zone.zone[count.index].zone_id
-  name    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_name : ""
-  type    = var.enable_static_website ? tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_type : ""
-  ttl     = 60
-  records = var.enable_static_website ? [tolist(aws_acm_certificate.public_cert[0].domain_validation_options)[count.index].resource_record_value] : []
+  for_each = var.enable_static_website ? {
+    for dvo in aws_acm_certificate.public_cert[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  zone_id         = data.aws_route53_zone.zone[0].zone_id
+  name            = each.value.name
+  type            = each.value.type
+  records         = [each.value.record]
+  ttl             = 60
+  allow_overwrite = true
 }
 
 # Validate the ACM certificate
 resource "aws_acm_certificate_validation" "public_cert_validation" {
   count                   = var.enable_static_website ? 1 : 0
-  certificate_arn         = aws_acm_certificate.public_cert[count.index].arn
-  validation_record_fqdns = var.enable_static_website ? [for record in aws_route53_record.public_cert_validation : record.fqdn] : []
+  certificate_arn         = aws_acm_certificate.public_cert[0].arn
+  validation_record_fqdns = [for record in aws_route53_record.public_cert_validation : record.fqdn]
 }
