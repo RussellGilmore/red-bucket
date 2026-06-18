@@ -14,21 +14,19 @@ import (
 )
 
 var (
-	awsRegion           = os.Getenv("AWS_REGION")
-	projectName         = "red-bucket-test"
-	bucketName          = strings.ToLower(random.UniqueId())
-	apexDomain          = os.Getenv("APEX_DOMAIN")
-	recordName          = fmt.Sprintf("%s.%s", strings.ToLower(random.UniqueId()), apexDomain)
-	enableStaticWebsite = true
-	opts                = &terraform.Options{
-		TerraformDir: ".",
+	awsRegion   = os.Getenv("AWS_REGION")
+	projectName = "red-bucket-test"
+	bucketName  = strings.ToLower(random.UniqueId())
+	apexDomain  = os.Getenv("APEX_DOMAIN")
+	recordName  = fmt.Sprintf("%s.%s", strings.ToLower(random.UniqueId()), apexDomain)
+	opts        = &terraform.Options{
+		TerraformDir: "../examples/static-website",
 		Vars: map[string]interface{}{
-			"region":                awsRegion,
-			"project_name":          projectName,
-			"bucket_name":           bucketName,
-			"apex_domain":           apexDomain,
-			"record_name":           recordName,
-			"enable_static_website": enableStaticWebsite,
+			"region":       awsRegion,
+			"project_name": projectName,
+			"bucket_name":  bucketName,
+			"apex_domain":  apexDomain,
+			"record_name":  recordName,
 		},
 	}
 )
@@ -53,20 +51,15 @@ func verifyRedBucketNames(t *testing.T) {
 }
 
 func createTestSite() {
-	// Create the test-site directory
-	err := os.Mkdir("test-site", 0755)
+	err := os.MkdirAll("../examples/static-website/site", 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Create the index.html file
-	file, err := os.Create("test-site/index.html")
+	file, err := os.Create("../examples/static-website/site/index.html")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
-	// Write "Hello World" to the index.html file
 	_, err = file.WriteString("Hello World")
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +67,7 @@ func createTestSite() {
 }
 
 func cleanupTestSite() {
-	err := os.RemoveAll("test-site")
+	err := os.RemoveAll("../examples/static-website/site")
 	if err != nil {
 		log.Fatal(err)
 	}
