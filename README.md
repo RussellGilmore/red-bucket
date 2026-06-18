@@ -1,8 +1,13 @@
 # Red Bucket
 
+## [![Red Bucket Module](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml/badge.svg?branch=main)](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml)
+
+A practical S3 bucket module — private and encrypted by default, with an
+optional secure static-website mode fronted by CloudFront over HTTPS.
+
 **Requirements:**
 
-1. Terraform 1.14.6
+1. Terraform >= 1.15.0
 2. Trivy >= 0.68.2
 
 Trivy can be installed via Homebrew on macOS with the command:
@@ -11,11 +16,31 @@ Trivy can be installed via Homebrew on macOS with the command:
 brew install aquasecurity/trivy/trivy
 ```
 
-## [![Red Bucket Module](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml/badge.svg?branch=main)](https://github.com/RussellGilmore/red-bucket/actions/workflows/module-test.yml)
+## Security posture
 
-A S3 Bucket module designed to be practical for casual use.
+-   All public access blocked; SSE-S3 encryption and versioning always on
+-   `force_destroy` defaults to `false`
+-   Static-website mode uses CloudFront Origin Access Control (OAC) with a
+    distribution-scoped bucket policy — the bucket is never publicly readable
+-   HTTPS enforced with an ACM-managed certificate (TLS 1.2_2021 minimum)
+-   Scanned with Trivy and gitleaks; integration-tested with Terratest
 
-> Contains useful Makefile for creating static asset directory and files.
+## Usage
+
+A private bucket — see [`examples/complete`](./examples/complete):
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "bucket" {
+  source = "RussellGilmore/red-bucket/aws"
+
+  project_name = "my-project"
+  bucket_name  = "data"
+}
+```
 
 <!-- prettier-ignore-start -->
 <!-- BEGIN_TF_DOCS -->
