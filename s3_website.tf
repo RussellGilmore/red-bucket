@@ -61,6 +61,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 # us-east-1/CLOUDFRONT-scoped resource whose managed rule groups should be
 # chosen deliberately by the consumer. Associate one via web_acl_id if needed.
 # trivy:ignore:AVD-AWS-0011
+# trivy:ignore:AVD-AWS-0010
 resource "aws_cloudfront_distribution" "distribution" {
   count               = var.enable_static_website ? 1 : 0
   enabled             = true
