@@ -61,3 +61,15 @@ variable "enable_authentication" {
   type        = bool
   default     = false
 }
+
+variable "logging_bucket" {
+  description = "Domain name of an S3 bucket to receive CloudFront access logs (e.g. my-logs.s3.amazonaws.com). When empty, access logging is disabled. The bucket must have ACLs enabled and grant the awslogsdelivery account write access."
+  type        = string
+  default     = ""
+}
+
+variable "logging_prefix" {
+  description = "Object key prefix for CloudFront access logs within logging_bucket."
+  type        = string
+  default     = "cloudfront/"
+}

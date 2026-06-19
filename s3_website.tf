@@ -54,6 +54,13 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 
 # Configure the CloudFront distribution for the static website
+# Access logging is opt-in via var.logging_bucket; when unset, no log
+# target exists to configure. Consumers needing logging supply a bucket.
+# trivy:ignore:AVD-AWS-0010
+# WAF is intentionally out of scope for this module. A web ACL is a billed,
+# us-east-1/CLOUDFRONT-scoped resource whose managed rule groups should be
+# chosen deliberately by the consumer. Associate one via web_acl_id if needed.
+# trivy:ignore:AVD-AWS-0011
 resource "aws_cloudfront_distribution" "distribution" {
   count               = var.enable_static_website ? 1 : 0
   enabled             = true
@@ -132,6 +139,15 @@ resource "aws_cloudfront_distribution" "distribution" {
       error_code         = custom_error_response.value.error_code
       response_code      = custom_error_response.value.response_code
       response_page_path = custom_error_response.value.response_page_path
+    }
+  }
+
+  dynamic "logging_config" {
+    for_each = var.logging_bucket != "" ? [1] : []
+    content {
+      bucket          = var.logging_bucket
+      prefix          = var.logging_prefix
+      include_cookies = false
     }
   }
 }

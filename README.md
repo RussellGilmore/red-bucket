@@ -94,6 +94,8 @@ No modules.
 | <a name="input_enable_authentication"></a> [enable\_authentication](#input\_enable\_authentication) | Enable Lambda@Edge-based authentication on the CloudFront distribution. | `bool` | `false` | no |
 | <a name="input_enable_static_website"></a> [enable\_static\_website](#input\_enable\_static\_website) | Create the CloudFront + ACM + Route53 resources needed to serve the bucket as a secure static website. | `bool` | `false` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Allow Terraform to destroy the bucket even when it contains objects. Defaults to false to protect against accidental data loss; set true for ephemeral or test buckets. | `bool` | `false` | no |
+| <a name="input_logging_bucket"></a> [logging\_bucket](#input\_logging\_bucket) | Domain name of an S3 bucket to receive CloudFront access logs (e.g. my-logs.s3.amazonaws.com). When empty, access logging is disabled. The bucket must have ACLs enabled and grant the awslogsdelivery account write access. | `string` | `""` | no |
+| <a name="input_logging_prefix"></a> [logging\_prefix](#input\_logging\_prefix) | Object key prefix for CloudFront access logs within logging\_bucket. | `string` | `"cloudfront/"` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Project name used for resource naming and the Project tag. | `string` | n/a | yes |
 | <a name="input_record_name"></a> [record\_name](#input\_record\_name) | Fully-qualified record name for the website (e.g. app.example.com). Required when enable\_static\_website is true. | `string` | `""` | no |
 | <a name="input_website_path"></a> [website\_path](#input\_website\_path) | Path to the static website content to upload. | `string` | `"../site"` | no |
