@@ -24,6 +24,21 @@ brew install aquasecurity/trivy/trivy
     distribution-scoped bucket policy — the bucket is never publicly readable
 -   HTTPS enforced with an ACM-managed certificate (TLS 1.2_2021 minimum)
 -   Scanned with Trivy and gitleaks; integration-tested with Terratest
+-
+
+## Features
+
+-   Creates a private, versioned, encrypted S3 bucket with all public access
+    blocked
+-   `force_destroy` defaults to false to guard against accidental data loss
+-   Optionally serves the bucket as a static website behind CloudFront over
+    HTTPS
+-   Uses CloudFront Origin Access Control (OAC) so the bucket is never publicly
+    readable
+-   Provisions and validates an ACM certificate via DNS for the website domain
+-   Optionally enables Lambda@Edge authentication on the distribution
+-   Optional opt-in CloudFront access logging to an S3 bucket you provide
+-   Configurable tags applied across all resource
 
 ## Usage
 
