@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -32,34 +33,39 @@ var (
 )
 
 // Destroy the terraform code
-func destroyTerraform(t *testing.T) {
-	terraform.Destroy(t, opts)
+func destroyTerraform(t *testing.T, ctx context.Context) {
+	terraform.DestroyContext(t, ctx, opts)
 }
 
 // Deploy the terraform code
-func deployTerraform(t *testing.T) {
-	_, err := terraform.InitAndApplyE(t, opts)
+func deployTerraform(t *testing.T, ctx context.Context) {
+	_, err := terraform.InitAndApplyContextE(t, ctx, opts)
 	if err != nil {
-		terraform.Apply(t, opts)
+		terraform.ApplyContext(t, ctx, opts)
 	}
 }
 
-func verifyRedBucketNames(t *testing.T) {
-	actualBucketName := terraform.Output(t, opts, "red_bucket_name")
+func verifyRedBucketNames(t *testing.T, ctx context.Context) {
+	actualBucketName := terraform.OutputContext(t, ctx, opts, "red_bucket_name")
 	expectedBucketName := projectName + "-" + bucketName + "-s3"
 	assert.Equal(t, expectedBucketName, actualBucketName)
 }
 
 func createTestSite() {
+	// Create the test-site directory
 	err := os.MkdirAll("../examples/static-website/site", 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Create the index.html file
 	file, err := os.Create("../examples/static-website/site/index.html")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
+
+	// Write "Hello World" to the index.html file
 	_, err = file.WriteString("Hello World")
 	if err != nil {
 		log.Fatal(err)
@@ -75,17 +81,19 @@ func cleanupTestSite() {
 
 // Test the red bucket terraform module
 func TestRedBucket(t *testing.T) {
+	ctx := t.Context()
+
 	defer test_structure.RunTestStage(t, "terraform_destroy", func() {
 		cleanupTestSite()
-		destroyTerraform(t)
+		destroyTerraform(t, ctx)
 	})
 
 	test_structure.RunTestStage(t, "terraform_init_and_apply", func() {
 		createTestSite()
-		deployTerraform(t)
+		deployTerraform(t, ctx)
 	})
 
 	test_structure.RunTestStage(t, "validate_red_bucket_names", func() {
-		verifyRedBucketNames(t)
+		verifyRedBucketNames(t, ctx)
 	})
 }
